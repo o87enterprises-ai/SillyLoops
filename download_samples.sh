@@ -1,13 +1,13 @@
 #!/bin/bash
 
-# SampleBeat - Download Hip-Hop Drum Samples
+# SillyLoops - Download Hip-Hop Drum Samples
 # This script downloads free, royalty-free drum samples
 
 set -e
 
 SAMPLES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/assets/samples"
 
-echo "🥁 SampleBeat - Downloading Hip-Hop Drum Samples"
+echo "🥁 SillyLoops - Downloading Hip-Hop Drum Samples"
 echo "================================================"
 echo ""
 
@@ -60,7 +60,7 @@ if [ "$WAV_COUNT" -eq 0 ]; then
     echo "⚠️  No WAV files found. Creating placeholder info..."
     
     cat > "$SAMPLES_DIR/README.txt" << 'EOF'
-SampleBeat Drum Samples
+SillyLoops Drum Samples
 =======================
 
 To add your own drum samples:

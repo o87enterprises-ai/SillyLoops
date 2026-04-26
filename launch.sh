@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SampleBeat - Quick Launch Script
+# SillyLoops - Quick Launch Script
 # Runs the Flutter app directly (development mode)
 
 set -e
@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "🥁 SampleBeat - Quick Launch"
+echo "🥁 SillyLoops - Quick Launch"
 echo "============================"
 echo ""
 

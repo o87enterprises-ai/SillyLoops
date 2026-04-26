@@ -5,11 +5,11 @@ import 'providers/sample_provider.dart';
 import 'providers/audio_provider.dart';
 
 void main() {
-  runApp(const SampleBeatApp());
+  runApp(const SillyLoopsApp());
 }
 
-class SampleBeatApp extends StatelessWidget {
-  const SampleBeatApp({super.key});
+class SillyLoopsApp extends StatelessWidget {
+  const SillyLoopsApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +19,7 @@ class SampleBeatApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AudioProvider()),
       ],
       child: MaterialApp(
-        title: 'SampleBeat - Retro ARP Sampler',
+        title: 'SillyLoops - Retro ARP Sampler',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           brightness: Brightness.dark,

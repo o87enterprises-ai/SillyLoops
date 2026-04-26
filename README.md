@@ -1,8 +1,8 @@
-# SampleBeat - Retro ARP Sampler 🎹
+# SillyLoops - Retro ARP Sampler 🎹
 
 A Flutter-based retro arpeggiator sampler with hip-hop drum machine capabilities.
 
-![SampleBeat](https://img.shields.io/badge/Flutter-3.x-blue)
+![SillyLoops](https://img.shields.io/badge/Flutter-3.x-blue)
 ![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
@@ -31,7 +31,7 @@ A Flutter-based retro arpeggiator sampler with hip-hop drum machine capabilities
 
 1. **Clone the repository:**
 ```bash
-cd /Volumes/Duck_Drive/software-dev/o87Dev/builds/samplebeat
+cd /Volumes/Duck_Drive/software-dev/o87Dev/builds/sillyloops
 ```
 
 2. **Download drum samples:**
@@ -69,7 +69,7 @@ flutter run
 ## Project Structure
 
 ```
-samplebeat/
+sillyloops/
 ├── lib/
 │   ├── main.dart                 # App entry point
 │   ├── providers/

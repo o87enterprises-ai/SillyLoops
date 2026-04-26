@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'SAMPLEBEAT',
+                      'SILLYLOOPS',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.bold,
@@ -142,8 +142,8 @@ class HomeScreen extends StatelessWidget {
               onTap: () {
                 showAboutDialog(
                   context: context,
-                  applicationName: 'SampleBeat',
-                  applicationVersion: '1.0.0',
+                  applicationName: 'SillyLoops',
+                  applicationVersion: '1.1.0',
                   applicationLegalese: 'Retro ARP Sampler',
                 );
               },

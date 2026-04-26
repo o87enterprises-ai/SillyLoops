@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SampleBeat - Build and Launch Script
+# SillyLoops - Build and Launch Script
 # Builds the Flutter web app and launches it in the browser
 
 set -e
@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "🥁 SampleBeat - Build & Launch"
+echo "🥁 SillyLoops - Build & Launch"
 echo "=============================="
 echo ""
 
@@ -121,4 +121,4 @@ fi
 
 echo ""
 echo "=============================="
-echo -e "${GREEN}✅ SampleBeat is ready!${NC}"
+echo -e "${GREEN}✅ SillyLoops is ready!${NC}"

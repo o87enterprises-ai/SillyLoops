@@ -8,8 +8,8 @@ import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
 
 public class MainActivity extends FlutterActivity {
-    private static final String CHANNEL = "com.samplebeat/audio_engine";
-    private static final String TAG = "SampleBeat";
+    private static final String CHANNEL = "com.sillyloops/audio_engine";
+    private static final String TAG = "SillyLoops";
 
     private AudioEngine audioEngine;
 

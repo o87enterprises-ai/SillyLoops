@@ -1,4 +1,4 @@
-name: samplebeat
+name: SillyLoops
 description: A retro ARP sampler with hip-hop drum machine capabilities.
 publish_to: 'none'
 version: 1.1.0+1

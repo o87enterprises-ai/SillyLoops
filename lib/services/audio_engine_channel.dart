@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 
 /// Platform channel interface for JUCE audio engine
 class AudioEngineChannel {
-  static const MethodChannel _channel = MethodChannel('com.samplebeat/audio_engine');
+  static const MethodChannel _channel = MethodChannel('com.sillyloops/audio_engine');
 
   static Future<void> initialize() async {
     try {

@@ -1,4 +1,4 @@
-# SampleBeat - Quick Start Guide 🎹
+# SillyLoops - Quick Start Guide 🎹
 
 ## 🚀 Instant Play (No Installation Required)
 
@@ -85,7 +85,7 @@ flutter doctor
 ### Build Commands
 ```bash
 # Navigate to project
-cd /Volumes/Duck_Drive/software-dev/o87Dev/builds/samplebeat
+cd /Volumes/Duck_Drive/software-dev/o87Dev/builds/sillyloops
 
 # Download samples
 ./download_samples.sh
@@ -160,7 +160,7 @@ flutter run -d android
 ## 📊 Project Structure
 
 ```
-samplebeat/
+sillyloops/
 ├── web/
 │   ├── standalone.html    ← Play this directly!
 │   ├── index.html         ← Flutter web entry
@@ -177,6 +177,6 @@ samplebeat/
 
 ## 🎵 Enjoy Making Beats!
 
-**SampleBeat** - Your retro ARP sampler for hip-hop drum machine goodness.
+**SillyLoops** - Your retro ARP sampler for hip-hop drum machine goodness.
 
 Built with ❤️ using Flutter + JUCE

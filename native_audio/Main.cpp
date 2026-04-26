@@ -12,7 +12,7 @@ public:
 
     void initialise(const juce::String&) override
     {
-        DBG("SampleBeat Audio Engine Starting...");
+        DBG("SillyLoops Audio Engine Starting...");
         
         application = std::make_unique<SamplePlayer>();
         

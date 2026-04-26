@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SampleBeat - Full Setup and Launch Script
+# SillyLoops - Full Setup and Launch Script
 # This script installs dependencies, downloads samples, builds, and launches the app
 
 set -e
@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-echo "🥁 SampleBeat - Complete Setup & Launch"
+echo "🥁 SillyLoops - Complete Setup & Launch"
 echo "======================================="
 echo ""
 
@@ -124,7 +124,7 @@ fi
 echo ""
 
 # Step 7: Launch in browser
-print_step "Launching SampleBeat in your browser..."
+print_step "Launching SillyLoops in your browser..."
 echo ""
 
 BUILD_DIR="$SCRIPT_DIR/build/web"
@@ -157,7 +157,7 @@ open_browser() {
 }
 
 echo "======================================="
-echo -e "${GREEN}🎉 SampleBeat is ready!${NC}"
+echo -e "${GREEN}🎉 SillyLoops is ready!${NC}"
 echo ""
 echo "The app will be available at: http://localhost:8080"
 echo ""

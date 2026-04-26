@@ -9,7 +9,7 @@ import Flutter
     ) -> Bool {
         
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-        let audioChannel = FlutterMethodChannel(name: "com.samplebeat/audio_engine",
+        let audioChannel = FlutterMethodChannel(name: "com.sillyloops/audio_engine",
                                                   binaryMessenger: controller.binaryMessenger)
         
         audioChannel.setMethodCallHandler { [weak self] (call, result) in
