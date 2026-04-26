@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'screens/home_screen.dart';
 import 'providers/sample_provider.dart';
 import 'providers/audio_provider.dart';
+import 'providers/arpeggiator_provider.dart';
 
 void main() {
   runApp(const SillyLoopsApp());
@@ -17,6 +18,7 @@ class SillyLoopsApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => SampleProvider()),
         ChangeNotifierProvider(create: (_) => AudioProvider()),
+        ChangeNotifierProvider(create: (_) => ArpeggiatorProvider()),
       ],
       child: MaterialApp(
         title: 'SillyLoops - Retro ARP Sampler',

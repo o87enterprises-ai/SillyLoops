@@ -8,6 +8,8 @@ import '../widgets/control_panel.dart';
 import '../widgets/lcd_display.dart';
 import '../widgets/recording_panel.dart';
 import '../widgets/bluetooth_panel.dart';
+import '../widgets/arpeggiator_panel.dart';
+import '../widgets/effects_panel.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -75,7 +77,13 @@ class HomeScreen extends StatelessWidget {
               // Bank Selector
               const BankSelector(),
               
-              const SizedBox(height: 20),
+              const SizedBox(height: 8),
+              
+              const ArpeggiatorPanel(),
+              
+              const EffectsPanel(),
+              
+              const SizedBox(height: 8),
               
               // Pad Grid
               Expanded(

@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../providers/sample_provider.dart';
 import '../providers/audio_provider.dart';
+import '../providers/arpeggiator_provider.dart';
 import '../widgets/drum_pad.dart';
 
 class PadGrid extends StatelessWidget {
@@ -12,8 +13,8 @@ class PadGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<SampleProvider, AudioProvider>(
-      builder: (context, sampleProvider, audioProvider, child) {
+    return Consumer3<SampleProvider, AudioProvider, ArpeggiatorProvider>(
+      builder: (context, sampleProvider, audioProvider, arpProvider, child) {
         return GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 4,
@@ -39,7 +40,7 @@ class PadGrid extends StatelessWidget {
               color: colors[index],
               sampleName: sample?.name ?? 'Pad ${index + 1}',
               isPlaying: false,
-              onTap: () => _playPad(context, sampleProvider, audioProvider, index),
+              onTap: () => _playPad(context, sampleProvider, audioProvider, arpProvider, index),
               onLongPress: () => _importSample(context, sampleProvider, index),
               onLoopToggle: () => _toggleLoop(context, sampleProvider, audioProvider, index),
               isLoop: sample?.isLoop ?? false,
@@ -54,15 +55,21 @@ class PadGrid extends StatelessWidget {
     BuildContext context,
     SampleProvider sampleProvider,
     AudioProvider audioProvider,
+    ArpeggiatorProvider arpProvider,
     int index,
   ) {
     final sample = sampleProvider.getSample(sampleProvider.currentBank, index);
     if (sample != null) {
-      audioProvider.playSample(
-        sample.path,
-        'pad_${sampleProvider.currentBank}_$index',
-        loop: sample.isLoop,
-      );
+      if (arpProvider.enabled) {
+        audioProvider.startArp(index, arpProvider, sample);
+      } else {
+        audioProvider.stopArp();
+        audioProvider.playSample(
+          sample.path,
+          'pad_${sampleProvider.currentBank}_$index',
+          loop: sample.isLoop,
+        );
+      }
     } else {
       // Haptic feedback for empty pad
       Feedback.forLongPress(context);

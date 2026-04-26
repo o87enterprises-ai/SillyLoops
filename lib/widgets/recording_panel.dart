@@ -115,9 +115,9 @@ class RecordingPanel extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      const Text(
-                        '0.0s',
-                        style: TextStyle(
+                      Text(
+                        '${(audioProvider.recordingDuration.inMilliseconds / 1000).toStringAsFixed(1)}s',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
