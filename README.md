@@ -1,3 +1,12 @@
+---
+title: SillyLoops
+emoji: 🎹
+colorFrom: purple
+colorTo: pink
+sdk: static
+pinned: false
+---
+
 # SillyLoops - Retro ARP Sampler 🎹
 
 A Flutter-based retro arpeggiator sampler with hip-hop drum machine capabilities.
@@ -31,7 +40,8 @@ A Flutter-based retro arpeggiator sampler with hip-hop drum machine capabilities
 
 1. **Clone the repository:**
 ```bash
-cd /Volumes/Duck_Drive/software-dev/o87Dev/builds/sillyloops
+git clone https://github.com/o87enterprises-ai/SillyLoops.git
+cd SillyLoops
 ```
 
 2. **Download drum samples:**
@@ -65,6 +75,19 @@ flutter run -d android
 ```bash
 flutter run
 ```
+
+## Hugging Face Spaces Deployment
+
+This project is configured for deployment to [Hugging Face Spaces](https://huggingface.co/spaces) as a static application.
+
+### Local Build for Spaces
+
+1. Build the web application:
+```bash
+flutter build web --release
+```
+
+2. Push the contents to your Hugging Face Space repository.
 
 ## Project Structure
 
