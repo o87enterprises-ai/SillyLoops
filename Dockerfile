@@ -7,6 +7,9 @@ WORKDIR /app
 # Disable analytics
 RUN flutter config --no-analytics
 
+# Environment check
+RUN flutter doctor -v
+
 # Copy configuration files
 COPY pubspec.yaml ./
 COPY analysis_options.yaml ./
@@ -19,20 +22,16 @@ COPY lib/ ./lib/
 COPY web/ ./web/
 COPY assets/ ./assets/
 
-# Download samples during build with better verbosity and error handling
+# Download samples during build (Simplified to avoid chain errors)
 RUN mkdir -p assets/samples && \
-    echo "Downloading samples..." && \
-    curl -L -v -o assets/samples/hiphop_drums.zip "https://99sounds.org/wp-content/uploads/2021/03/99Sounds-Hip-Hop-Drums.zip" && \
-    echo "Checking zip file..." && \
-    ls -lh assets/samples/hiphop_drums.zip && \
-    echo "Extracting samples..." && \
-    unzip -o assets/samples/hiphop_drums.zip -d assets/samples/ && \
-    echo "Cleaning up..." && \
-    rm assets/samples/hiphop_drums.zip || (echo "Sample step failed but continuing to build..." && ls -R assets/samples)
+    curl -L -o assets/samples/hiphop_drums.zip "https://99sounds.org/wp-content/uploads/2021/03/99Sounds-Hip-Hop-Drums.zip" && \
+    unzip -o assets/samples/hiphop_drums.zip -d assets/samples/ || echo "Samples download failed" && \
+    rm -f assets/samples/hiphop_drums.zip
 
-# Build the web app
+# Build the web app with explicit error capture
 RUN echo "Starting Flutter web build..." && \
-    flutter build web --release --base-href=/ && \
+    flutter build web --release --base-href=/ --verbose > build_log.txt 2>&1 || \
+    (echo "BUILD FAILED! LOG FOLLOWS:" && cat build_log.txt && exit 1) && \
     echo "Build completed successfully!"
 
 # Stage 2: Serve using unprivileged Nginx
