@@ -3,7 +3,7 @@ title: SillyLoops
 emoji: 🎹
 colorFrom: purple
 colorTo: pink
-sdk: static
+sdk: docker
 pinned: false
 ---
 
