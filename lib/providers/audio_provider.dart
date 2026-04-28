@@ -180,7 +180,7 @@ class AudioProvider extends ChangeNotifier {
       }
 
       // Handle both assets and files
-      if (player.source == null || !player.source!.toString().contains(path)) {
+      if (player.audioSource == null || !player.audioSource!.toString().contains(path)) {
         if (path.startsWith('assets/')) {
           await player.setAsset(path);
         } else {

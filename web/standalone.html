@@ -1314,7 +1314,17 @@
                 pad.dataset.index = i;
                 
                 const sample = samples[currentBank][i];
-                const name = sample ? sample.name : defaultNames[i];
+                const rawName = sample ? sample.name : defaultNames[i];
+                // Sanitize name for display
+                const name = rawName.replace(/[&<>"']/g, function(m) {
+                    return {
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#39;'
+                    }[m];
+                });
                 
                 pad.innerHTML = `
                     <div class="mic-indicator">🎤</div>

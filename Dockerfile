@@ -1,25 +1,8 @@
 # Stage 1: Build the Flutter web app
-FROM debian:latest AS build-env
+FROM ghcr.io/cirruslabs/flutter:stable AS build-env
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    unzip \
-    xz-utils \
-    zip \
-    libglu1-mesa \
-    python3 \
-    && rm -rf /var/lib/apt/lists/*
+USER root
 
-# Install Flutter
-RUN git clone https://github.com/flutter/flutter.git /usr/local/flutter
-ENV PATH="/usr/local/flutter/bin:/usr/local/flutter/bin/cache/dart-sdk/bin:${PATH}"
-
-# Pre-download Flutter artifacts
-RUN flutter doctor -v
-
-# Copy project files
 WORKDIR /app
 COPY . .
 
@@ -27,16 +10,15 @@ COPY . .
 RUN flutter pub get
 RUN flutter build web --release
 
-# Stage 2: Serve the app using Nginx
-FROM nginx:alpine
+# Stage 2: Serve the app using Python
+FROM python:3.9-slim
 
-# Copy the build output to Nginx's html directory
-COPY --from=build-env /app/build/web /usr/share/nginx/html
+# Copy the build output
+WORKDIR /app
+COPY --from=build-env /app/build/web .
 
-# Expose port 7860 (Hugging Face default)
+# Expose port 7860
 EXPOSE 7860
 
-# Update Nginx config to listen on port 7860
-RUN sed -i 's/listen\( \)*80;/listen 7860;/' /etc/nginx/conf.d/default.conf
-
-CMD ["nginx", "-g", "daemon off;"]
+# Start a simple HTTP server
+CMD ["python3", "-m", "http.server", "7860"]

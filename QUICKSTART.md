@@ -85,7 +85,7 @@ flutter doctor
 ### Build Commands
 ```bash
 # Navigate to project
-cd /Volumes/Duck_Drive/software-dev/o87Dev/builds/sillyloops
+cd SillyLoops
 
 # Download samples
 ./download_samples.sh
