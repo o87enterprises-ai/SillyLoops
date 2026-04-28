@@ -6,19 +6,23 @@ USER root
 WORKDIR /app
 COPY . .
 
-# Build the web app
+# Build the web app with explicit base-href
 RUN flutter pub get
-RUN flutter build web --release
+RUN flutter build web --release --base-href=/
 
-# Stage 2: Serve the app using Python
-FROM python:3.9-slim
+# Stage 2: Serve the app using Nginx
+FROM nginx:alpine
+
+# Remove default nginx config
+RUN rm /etc/nginx/conf.d/default.conf
+
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/
 
 # Copy the build output
-WORKDIR /app
-COPY --from=build-env /app/build/web .
+COPY --from=build-env /app/build/web /usr/share/nginx/html
 
 # Expose port 7860
 EXPOSE 7860
 
-# Start a simple HTTP server
-CMD ["python3", "-m", "http.server", "7860"]
+CMD ["nginx", "-g", "daemon off;"]
