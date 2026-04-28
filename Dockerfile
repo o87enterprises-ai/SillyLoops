@@ -19,15 +19,21 @@ COPY lib/ ./lib/
 COPY web/ ./web/
 COPY assets/ ./assets/
 
-# Download samples during build to ensure they are present in the image
+# Download samples during build with better verbosity and error handling
 RUN mkdir -p assets/samples && \
-    curl -L -o assets/samples/hiphop_drums.zip "https://99sounds.org/wp-content/uploads/2021/03/99Sounds-Hip-Hop-Drums.zip" && \
+    echo "Downloading samples..." && \
+    curl -L -v -o assets/samples/hiphop_drums.zip "https://99sounds.org/wp-content/uploads/2021/03/99Sounds-Hip-Hop-Drums.zip" && \
+    echo "Checking zip file..." && \
+    ls -lh assets/samples/hiphop_drums.zip && \
+    echo "Extracting samples..." && \
     unzip -o assets/samples/hiphop_drums.zip -d assets/samples/ && \
-    rm assets/samples/hiphop_drums.zip || echo "Sample download failed, proceeding with empty samples"
+    echo "Cleaning up..." && \
+    rm assets/samples/hiphop_drums.zip || (echo "Sample step failed but continuing to build..." && ls -R assets/samples)
 
-# Build the web app (removed unrecognized --web-renderer flag)
-RUN flutter build web --release \
-    --base-href=/
+# Build the web app
+RUN echo "Starting Flutter web build..." && \
+    flutter build web --release --base-href=/ && \
+    echo "Build completed successfully!"
 
 # Stage 2: Serve using unprivileged Nginx
 FROM nginxinc/nginx-unprivileged:alpine
