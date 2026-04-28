@@ -2,5 +2,20 @@ include: package:flutter_lints/flutter.yaml
 
 linter:
   rules:
+    # Error Rules
+    always_declare_return_types: true
+    cancel_subscriptions: true
+    close_sinks: true
+    no_logic_in_create_state: true
+    
+    # Style Rules
     prefer_const_constructors: true
     prefer_const_literals_to_create_immutables: true
+    prefer_final_fields: true
+    prefer_final_locals: true
+    unnecessary_new: true
+    
+    # Security/Hardening Rules
+    avoid_print: true
+    avoid_unnecessary_containers: true
+    sized_box_for_whitespace: true
