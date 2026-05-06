@@ -2,6 +2,8 @@
 
 A Flutter-based sampler and looper designed for simplicity and immediate creative flow. Record any sound and turn it into a loop instantly.
 
+**Live Demo:** [https://sillyloops.pages.dev](https://sillyloops.pages.dev)
+
 ![SillyLoops](https://img.shields.io/badge/Flutter-3.x-blue)
 ![Platform](https://img.shields.io/badge/Platform-iOS%20%7C%20Android%20%7C%20Web-lightgrey)
 
