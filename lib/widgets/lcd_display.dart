@@ -51,6 +51,14 @@ class LcdDisplay extends StatelessWidget {
                           color: Colors.teal.shade300,
                         ),
                         const SizedBox(width: 20),
+                        _LcdLabel(label: 'PAD'),
+                        _LcdValue(
+                          value: sampleProvider.selectedPad == -1 
+                              ? '--' 
+                              : '${sampleProvider.selectedPad + 1}',
+                          color: Colors.teal.shade300,
+                        ),
+                        const SizedBox(width: 20),
                         _LcdLabel(label: 'BPM'),
                         _LcdValue(
                           value: audioProvider.bpm.toInt().toString(),
@@ -64,7 +72,7 @@ class LcdDisplay extends StatelessWidget {
                         _LcdLabel(label: 'STATUS'),
                         _LcdValue(
                           value: isRecording 
-                              ? 'REC' 
+                              ? 'RECORDING' 
                               : audioProvider.isPlaying 
                                   ? 'PLAYING' 
                                   : 'READY',
@@ -73,7 +81,7 @@ class LcdDisplay extends StatelessWidget {
                               : audioProvider.isPlaying 
                                   ? Colors.green 
                                   : Colors.teal.shade300,
-                          isBlinking: isRecording || audioProvider.isPlaying,
+                          isBlinking: isRecording,
                         ),
                         const SizedBox(width: 20),
                         _LcdLabel(label: 'LOOP'),

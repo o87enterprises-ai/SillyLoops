@@ -25,13 +25,6 @@ COPY lib/ ./lib/
 COPY web/ ./web/
 COPY assets/ ./assets/
 
-# Download samples during build (Simplified to avoid chain errors)
-# This ensures that even if assets/ was empty in git, the folder exists and is populated
-RUN mkdir -p assets/samples && \
-    curl -L -o assets/samples/hiphop_drums.zip "https://99sounds.org/wp-content/uploads/2021/03/99Sounds-Hip-Hop-Drums.zip" && \
-    unzip -o assets/samples/hiphop_drums.zip -d assets/samples/ || echo "Samples download failed" && \
-    rm -f assets/samples/hiphop_drums.zip
-
 # Build the web app with explicit error capture and renderer choice
 RUN echo "Starting Flutter web build..." && \
     flutter build web --release --base-href=/ --web-renderer html --verbose > build_log.txt 2>&1 || \

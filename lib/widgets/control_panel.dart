@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import '../providers/audio_provider.dart';
 import '../providers/sample_provider.dart';
 
@@ -43,23 +46,28 @@ class ControlPanel extends StatelessWidget {
                   _ActionButton(
                     icon: Icons.upload_file,
                     label: 'Import',
-                    onTap: () => _showImportHelp(context),
+                    onTap: () => _handleImport(context, sampleProvider),
+                    isActive: sampleProvider.selectedPad != -1,
                   ),
                   _ActionButton(
-                    icon: Icons.mic,
-                    label: 'Record',
-                    onTap: () => _startRecording(context, audioProvider, sampleProvider),
+                    icon: audioProvider.isRecording ? Icons.stop : Icons.mic,
+                    label: audioProvider.isRecording ? 'STOP' : 'RECORD',
+                    onTap: () => _handleRecordPress(context, audioProvider, sampleProvider),
                     isRecording: audioProvider.isRecording,
+                    isActive: sampleProvider.selectedPad != -1,
                   ),
                   _ActionButton(
-                    icon: Icons.folder_open,
-                    label: 'Load Pack',
-                    onTap: () => _loadDefaultSamples(context, sampleProvider),
+                    icon: Icons.loop,
+                    label: 'Loop',
+                    onTap: () => _toggleLoopForSelected(context, sampleProvider, audioProvider),
+                    isActive: sampleProvider.selectedPad != -1 && 
+                             sampleProvider.getSample(sampleProvider.currentBank, sampleProvider.selectedPad) != null,
                   ),
                   _ActionButton(
-                    icon: Icons.clear,
+                    icon: Icons.delete_outline,
                     label: 'Clear',
-                    onTap: () => _clearCurrentPad(context, sampleProvider),
+                    onTap: () => _clearSelectedPad(context, sampleProvider),
+                    isActive: sampleProvider.selectedPad != -1,
                   ),
                 ],
               ),
@@ -70,86 +78,133 @@ class ControlPanel extends StatelessWidget {
     );
   }
 
-  void _showImportHelp(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Long-press any pad to import a sample'),
-        backgroundColor: Colors.blue,
-        duration: Duration(seconds: 3),
-      ),
-    );
+  Future<void> _handleImport(BuildContext context, SampleProvider sampleProvider) async {
+    final selectedPad = sampleProvider.selectedPad;
+    if (selectedPad == -1) return;
+
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.audio,
+      );
+
+      if (result != null && result.files.single.path != null) {
+        final file = File(result.files.single.path!);
+        final appDir = await getApplicationDocumentsDirectory();
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        final fileName = result.files.single.name;
+        final newPath = '${appDir.path}/imported_$timestamp.wav';
+        
+        await file.copy(newPath);
+
+        sampleProvider.setSample(
+          sampleProvider.currentBank,
+          selectedPad,
+          SampleData(
+            name: fileName,
+            path: newPath,
+            isLoop: true,
+          ),
+        );
+
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Imported: $fileName'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
-  void _clearCurrentPad(BuildContext context, SampleProvider sampleProvider) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Tap a pad then press Clear'),
-        backgroundColor: Colors.orange,
-        duration: Duration(seconds: 2),
-      ),
-    );
+  void _toggleLoopForSelected(BuildContext context, SampleProvider sampleProvider, AudioProvider audioProvider) {
+    final selectedPad = sampleProvider.selectedPad;
+    if (selectedPad != -1) {
+      final sample = sampleProvider.getSample(sampleProvider.currentBank, selectedPad);
+      if (sample != null) {
+        final newLoop = !sample.isLoop;
+        sampleProvider.setLoopMode(sampleProvider.currentBank, selectedPad, newLoop);
+        
+        if (newLoop) {
+          audioProvider.playSample(sample.path, 'pad_${sampleProvider.currentBank}_$selectedPad', loop: true);
+        } else {
+          audioProvider.stopSample('pad_${sampleProvider.currentBank}_$selectedPad');
+        }
+      }
+    }
   }
 
-  void _loadDefaultSamples(BuildContext context, SampleProvider sampleProvider) {
-    sampleProvider.loadDefaultSamples();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Default drum samples loaded to Bank A'),
-        backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
-      ),
-    );
+  void _clearSelectedPad(BuildContext context, SampleProvider sampleProvider) {
+    final selectedPad = sampleProvider.selectedPad;
+    if (selectedPad != -1) {
+      sampleProvider.clearSample(sampleProvider.currentBank, selectedPad);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Pad ${selectedPad + 1} cleared'),
+          backgroundColor: Colors.orange,
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
-  void _startRecording(
+  void _handleRecordPress(
     BuildContext context,
     AudioProvider audioProvider,
     SampleProvider sampleProvider,
   ) async {
     if (audioProvider.isRecording) {
-      // Stop recording
+      final recordingIndex = audioProvider.recordingPadIndex;
       final path = await audioProvider.stopRecording();
-      if (context.mounted && path != null) {
-        // Assign recording to current pad
-        final padIndex = sampleProvider.numPads - 1; // Last pad by default
+      
+      if (context.mounted && path != null && recordingIndex != -1) {
         sampleProvider.setSample(
           sampleProvider.currentBank,
-          padIndex,
+          recordingIndex,
           SampleData(
-            name: 'Recording ${DateTime.now().second}',
+            name: 'Recording ${DateTime.now().hour}:${DateTime.now().minute}',
             path: path,
-            isLoop: false,
+            isLoop: true, // Default to loop for looper feel
           ),
         );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Recording saved to pad!'),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 2),
-          ),
+        
+        // Auto-play the loop immediately
+        audioProvider.playSample(
+          path, 
+          'pad_${sampleProvider.currentBank}_$recordingIndex',
+          loop: true
         );
       }
     } else {
-      // Start recording
-      final success = await audioProvider.startRecording(0);
-      if (context.mounted) {
-        if (success) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Recording... Tap Record again to stop'),
-              backgroundColor: Colors.red,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Microphone permission denied'),
-              backgroundColor: Colors.orange,
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
+      final selectedPad = sampleProvider.selectedPad;
+      if (selectedPad == -1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Select a pad first!'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+        return;
+      }
+
+      final success = await audioProvider.startRecording(selectedPad);
+      if (context.mounted && !success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Microphone permission denied'),
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -240,16 +295,16 @@ class _PlayStopButton extends StatelessWidget {
               gradient: LinearGradient(
                 colors: audioProvider.isPlaying
                     ? [Colors.green.shade400, Colors.green.shade700]
-                    : [Colors.red.shade400, Colors.red.shade700],
+                    : [Colors.white12, Colors.white24],
               ),
-              boxShadow: [
+              boxShadow: audioProvider.isPlaying ? [
                 BoxShadow(
-                  color: (audioProvider.isPlaying ? Colors.green : Colors.red)
-                      .withOpacity(0.4),
+                  color: Colors.green.withOpacity(0.4),
                   blurRadius: 10,
                   spreadRadius: 2,
                 ),
-              ],
+              ] : null,
+              border: Border.all(color: Colors.white24),
             ),
             child: Icon(
               audioProvider.isPlaying ? Icons.stop : Icons.play_arrow,
@@ -273,7 +328,7 @@ class _LoopModeToggle extends StatelessWidget {
     return Column(
       children: [
         const Text(
-          'LOOP',
+          'MASTER LOOP',
           style: TextStyle(
             color: Colors.white70,
             fontSize: 12,
@@ -295,7 +350,7 @@ class _LoopModeToggle extends StatelessWidget {
               ),
             ),
             child: Icon(
-              Icons.loop,
+              Icons.all_inclusive,
               color: audioProvider.loopMode ? Colors.white : Colors.white38,
               size: 32,
             ),
@@ -311,46 +366,51 @@ class _ActionButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
   final bool isRecording;
+  final bool isActive;
 
   const _ActionButton({
     required this.icon,
     required this.label,
     required this.onTap,
     this.isRecording = false,
+    this.isActive = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isRecording ? Colors.red.withOpacity(0.5) : Colors.white10,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: isRecording ? Colors.red : Colors.white24,
-                width: isRecording ? 2 : 1,
+      onTap: isActive ? onTap : null,
+      child: Opacity(
+        opacity: isActive ? 1.0 : 0.3,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isRecording ? Colors.red.withOpacity(0.5) : Colors.white10,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isRecording ? Colors.red : Colors.white24,
+                  width: isRecording ? 2 : 1,
+                ),
+              ),
+              child: Icon(
+                icon,
+                color: isRecording ? Colors.white : Colors.white,
+                size: 24,
               ),
             ),
-            child: Icon(
-              icon,
-              color: isRecording ? Colors.white : Colors.white,
-              size: 24,
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: isRecording ? Colors.red : Colors.white70,
+                fontSize: 10,
+                fontWeight: isRecording ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: isRecording ? Colors.red : Colors.white70,
-              fontSize: 10,
-              fontWeight: isRecording ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

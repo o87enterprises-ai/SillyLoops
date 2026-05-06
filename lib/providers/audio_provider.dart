@@ -83,7 +83,7 @@ class AudioProvider extends ChangeNotifier {
     try {
       if (await _recorder.hasPermission()) {
         final directory = await getApplicationDocumentsDirectory();
-        _recordingPath = '${directory.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+        _recordingPath = '${directory.path}/pad_${padIndex}_${DateTime.now().millisecondsSinceEpoch}.m4a';
         
         await _recorder.start(
           const RecordConfig(
@@ -95,6 +95,7 @@ class AudioProvider extends ChangeNotifier {
         );
 
         _isRecording = true;
+        _currentArpPad = padIndex;
         _recordingDuration = Duration.zero;
         notifyListeners();
 
@@ -127,16 +128,20 @@ class AudioProvider extends ChangeNotifier {
     try {
       final path = await _recorder.stop();
       _isRecording = false;
+      _currentArpPad = -1;
       _inputLevel = 0.0;
       notifyListeners();
       return path ?? _recordingPath;
     } catch (e) {
       debugPrint('Stop recording error: $e');
       _isRecording = false;
+      _currentArpPad = -1;
       notifyListeners();
       return null;
     }
   }
+
+  int get recordingPadIndex => _isRecording ? _currentArpPad : -1;
 
   void cancelRecording() async {
     try {

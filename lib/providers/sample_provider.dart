@@ -18,6 +18,8 @@ class SampleProvider extends ChangeNotifier {
   int _currentBank = 0;
   final int _numBanks = 4;
   final int _numPads = 8;
+  int _selectedPad = -1;
+  bool _isSamplingMode = false;
 
   // 4 banks x 8 pads
   final List<List<SampleData?>> _samples = List.generate(
@@ -25,21 +27,11 @@ class SampleProvider extends ChangeNotifier {
     (_) => List.generate(8, (_) => null),
   );
 
-  // Default sample names for hip-hop drums
-  final List<String> _defaultSampleNames = [
-    'Kick',
-    'Snare',
-    'HiHat Closed',
-    'HiHat Open',
-    'Clap',
-    'Percussion',
-    'Crash',
-    'Ride',
-  ];
-
   int get currentBank => _currentBank;
   int get numBanks => _numBanks;
   int get numPads => _numPads;
+  int get selectedPad => _selectedPad;
+  bool get isSamplingMode => _isSamplingMode;
   List<List<SampleData?>> get samples => _samples;
   SampleData? getSample(int bank, int pad) => _samples[bank][pad];
 
@@ -52,6 +44,21 @@ class SampleProvider extends ChangeNotifier {
       _currentBank = bank;
       notifyListeners();
     }
+  }
+
+  void selectPad(int pad) {
+    _selectedPad = pad;
+    notifyListeners();
+  }
+
+  void toggleSamplingMode() {
+    _isSamplingMode = !_isSamplingMode;
+    notifyListeners();
+  }
+
+  void setSamplingMode(bool value) {
+    _isSamplingMode = value;
+    notifyListeners();
   }
 
   void nextBank() {
@@ -98,16 +105,5 @@ class SampleProvider extends ChangeNotifier {
       );
       notifyListeners();
     }
-  }
-
-  void loadDefaultSamples() {
-    for (int i = 0; i < _defaultSampleNames.length && i < _numPads; i++) {
-      _samples[0][i] = SampleData(
-        name: _defaultSampleNames[i],
-        path: 'assets/samples/drum_$i.wav',
-        isLoop: false,
-      );
-    }
-    notifyListeners();
   }
 }

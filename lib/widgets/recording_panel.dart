@@ -136,11 +136,32 @@ class RecordingPanel extends StatelessWidget {
   }
 
   void _stopRecording(BuildContext context, AudioProvider audioProvider) async {
+    final recordingIndex = audioProvider.recordingPadIndex;
     final path = await audioProvider.stopRecording();
-    if (context.mounted && path != null) {
+    
+    if (context.mounted && path != null && recordingIndex != -1) {
+      final sampleProvider = Provider.of<SampleProvider>(context, listen: false);
+      
+      sampleProvider.setSample(
+        sampleProvider.currentBank,
+        recordingIndex,
+        SampleData(
+          name: 'Recording ${DateTime.now().hour}:${DateTime.now().minute}',
+          path: path,
+          isLoop: true,
+        ),
+      );
+      
+      // Auto-play the loop
+      audioProvider.playSample(
+        path, 
+        'pad_${sampleProvider.currentBank}_$recordingIndex',
+        loop: true
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Recording saved: $path'),
+          content: Text('Recording saved to Pad ${recordingIndex + 1}!'),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 2),
         ),

@@ -10,6 +10,8 @@ class DrumPad extends StatefulWidget {
   final VoidCallback onLongPress;
   final VoidCallback onLoopToggle;
   final bool isLoop;
+  final bool isSelected;
+  final bool isRecording;
 
   const DrumPad({
     super.key,
@@ -21,6 +23,8 @@ class DrumPad extends StatefulWidget {
     required this.onLongPress,
     required this.onLoopToggle,
     required this.isLoop,
+    this.isSelected = false,
+    this.isRecording = false,
   });
 
   @override
@@ -31,6 +35,7 @@ class _DrumPadState extends State<DrumPad> with SingleTickerProviderStateMixin {
   bool _isPressed = false;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
+  late AnimationController _recordAnimationController;
 
   @override
   void initState() {
@@ -42,11 +47,17 @@ class _DrumPadState extends State<DrumPad> with SingleTickerProviderStateMixin {
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
+
+    _recordAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _animationController.dispose();
+    _recordAnimationController.dispose();
     super.dispose();
   }
 
@@ -75,8 +86,11 @@ class _DrumPadState extends State<DrumPad> with SingleTickerProviderStateMixin {
       onLongPress: widget.onLongPress,
       onLongPressStart: (_) => HapticFeedback.mediumImpact(),
       child: AnimatedBuilder(
-        animation: _scaleAnimation,
+        animation: Listenable.merge([_scaleAnimation, _recordAnimationController]),
         builder: (context, child) {
+          final isRecording = widget.isRecording;
+          final borderAlpha = isRecording ? _recordAnimationController.value : 1.0;
+          
           return Transform.scale(
             scale: _scaleAnimation.value,
             child: Container(
@@ -86,20 +100,27 @@ class _DrumPadState extends State<DrumPad> with SingleTickerProviderStateMixin {
                         colors: [widget.color.withOpacity(0.5), widget.color.withOpacity(0.3)],
                       )
                     : LinearGradient(
-                        colors: [widget.color, widget.color.withOpacity(0.7)],
+                        colors: [
+                          isRecording ? Colors.red.shade900 : widget.color,
+                          isRecording ? Colors.red.shade700 : widget.color.withOpacity(0.7)
+                        ],
                       ),
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: widget.color.withOpacity(0.4),
+                    color: isRecording 
+                        ? Colors.red.withOpacity(0.6 * borderAlpha)
+                        : widget.color.withOpacity(0.4),
                     blurRadius: _isPressed ? 5 : 15,
                     spreadRadius: _isPressed ? 0 : 2,
                     offset: Offset(0, _isPressed ? 2 : 5),
                   ),
                 ],
                 border: Border.all(
-                  color: widget.isLoop ? Colors.white : Colors.white24,
-                  width: widget.isLoop ? 3 : 1,
+                  color: isRecording 
+                      ? Colors.red.withOpacity(borderAlpha) 
+                      : (widget.isSelected ? Colors.white : (widget.isLoop ? Colors.white70 : Colors.white24)),
+                  width: (isRecording || widget.isSelected || widget.isLoop) ? 3 : 1,
                 ),
               ),
               child: Stack(
@@ -109,13 +130,10 @@ class _DrumPadState extends State<DrumPad> with SingleTickerProviderStateMixin {
                     Positioned(
                       top: 4,
                       right: 4,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
+                      child: Icon(
+                        Icons.loop,
+                        size: 12,
+                        color: Colors.white,
                       ),
                     ),
                   // Content
@@ -123,23 +141,27 @@ class _DrumPadState extends State<DrumPad> with SingleTickerProviderStateMixin {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          '${widget.index + 1}',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        if (isRecording)
+                          Icon(Icons.mic, color: Colors.white, size: 24)
+                        else
+                          Text(
+                            '${widget.index + 1}',
+                            style: TextStyle(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
                         const SizedBox(height: 4),
                         Flexible(
                           child: Text(
-                            widget.sampleName.length > 12
+                            isRecording ? 'RECORDING...' : (widget.sampleName.length > 12
                                 ? '${widget.sampleName.substring(0, 10)}...'
-                                : widget.sampleName,
+                                : widget.sampleName),
                             style: TextStyle(
                               fontSize: 10,
-                              color: Colors.white70,
+                              color: Colors.white,
+                              fontWeight: isRecording ? FontWeight.bold : FontWeight.normal,
                             ),
                             textAlign: TextAlign.center,
                             maxLines: 2,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/sample_provider.dart';
 import '../providers/audio_provider.dart';
+import '../providers/session_provider.dart';
 import '../widgets/pad_grid.dart';
 import '../widgets/bank_selector.dart';
 import '../widgets/control_panel.dart';
@@ -128,7 +129,7 @@ class HomeScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Settings',
+              'Menu',
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -137,11 +138,19 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             ListTile(
-              leading: const Icon(Icons.folder_open, color: Colors.white),
-              title: const Text('Load Sample Pack', style: TextStyle(color: Colors.white)),
+              leading: const Icon(Icons.save, color: Colors.greenAccent),
+              title: const Text('Save Session', style: TextStyle(color: Colors.white)),
               onTap: () {
                 Navigator.pop(context);
-                // TODO: Implement sample pack loading
+                _showSaveDialog(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.folder_special, color: Colors.amberAccent),
+              title: const Text('My Sessions', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                Navigator.pop(context);
+                _showLoadDialog(context);
               },
             ),
             ListTile(
@@ -151,13 +160,130 @@ class HomeScreen extends StatelessWidget {
                 showAboutDialog(
                   context: context,
                   applicationName: 'SillyLoops',
-                  applicationVersion: '1.1.0',
-                  applicationLegalese: 'Retro ARP Sampler',
+                  applicationVersion: '1.2.0',
+                  applicationLegalese: 'Traditional Sampler & Looper',
                 );
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showSaveDialog(BuildContext context) {
+    final TextEditingController controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1A2E),
+        title: const Text('Save Current State', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          decoration: const InputDecoration(
+            hintText: 'Session Name',
+            hintStyle: TextStyle(color: Colors.white38),
+            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () {
+              final name = controller.text.trim();
+              if (name.isNotEmpty) {
+                final sampleProvider = Provider.of<SampleProvider>(context, listen: false);
+                final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+                Provider.of<SessionProvider>(context, listen: false)
+                    .saveSession(name, sampleProvider, audioProvider.bpm);
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Session "$name" saved!'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            child: const Text('SAVE'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLoadDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF16213E),
+      isScrollControlled: true,
+      builder: (context) => Consumer<SessionProvider>(
+        builder: (context, sessionProvider, child) {
+          if (sessionProvider.sessions.isEmpty) {
+            return Container(
+              height: 200,
+              padding: const EdgeInsets.all(20),
+              child: const Center(
+                child: Text('No saved sessions.', style: TextStyle(color: Colors.white54)),
+              ),
+            );
+          }
+
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Saved Sessions',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: sessionProvider.sessions.length,
+                    itemBuilder: (context, index) {
+                      final session = sessionProvider.sessions[index];
+                      return ListTile(
+                        leading: const Icon(Icons.album, color: Colors.purpleAccent),
+                        title: Text(session.name, style: const TextStyle(color: Colors.white)),
+                        subtitle: Text(
+                          '${session.createdAt.day}/${session.createdAt.month} ${session.bpm.toInt()} BPM',
+                          style: const TextStyle(color: Colors.white38, fontSize: 12),
+                        ),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+                          onPressed: () => sessionProvider.deleteSession(session.id),
+                        ),
+                        onTap: () {
+                          final sampleProvider = Provider.of<SampleProvider>(context, listen: false);
+                          final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+                          sessionProvider.loadSessionIntoApp(session, sampleProvider);
+                          audioProvider.setBpm(session.bpm);
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Loaded session: ${session.name}'),
+                              backgroundColor: Colors.blue,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

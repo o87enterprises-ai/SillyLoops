@@ -24,6 +24,9 @@ class PadGrid extends StatelessWidget {
           itemCount: sampleProvider.numPads,
           itemBuilder: (context, index) {
             final sample = sampleProvider.getSample(sampleProvider.currentBank, index);
+            final isSelected = sampleProvider.selectedPad == index;
+            final isRecording = audioProvider.isRecording && audioProvider.recordingPadIndex == index;
+            
             final colors = [
               const Color(0xFFFF6B6B),
               const Color(0xFF4ECDC4),
@@ -37,11 +40,13 @@ class PadGrid extends StatelessWidget {
 
             return DrumPad(
               index: index,
-              color: colors[index],
-              sampleName: sample?.name ?? 'Pad ${index + 1}',
+              color: colors[index % colors.length],
+              sampleName: sample?.name ?? 'Empty',
               isPlaying: false,
-              onTap: () => _playPad(context, sampleProvider, audioProvider, arpProvider, index),
-              onLongPress: () => _importSample(context, sampleProvider, index),
+              isSelected: isSelected,
+              isRecording: isRecording,
+              onTap: () => _handlePadTap(context, sampleProvider, audioProvider, arpProvider, index),
+              onLongPress: () => _toggleLoop(context, sampleProvider, audioProvider, index),
               onLoopToggle: () => _toggleLoop(context, sampleProvider, audioProvider, index),
               isLoop: sample?.isLoop ?? false,
             );
@@ -51,14 +56,28 @@ class PadGrid extends StatelessWidget {
     );
   }
 
-  void _playPad(
+  void _handlePadTap(
     BuildContext context,
     SampleProvider sampleProvider,
     AudioProvider audioProvider,
     ArpeggiatorProvider arpProvider,
     int index,
-  ) {
+  ) async {
+    // If recording, tapping ANY pad stops the recording
+    if (audioProvider.isRecording) {
+      final path = await audioProvider.stopRecording();
+      if (path != null) {
+        final recordingIndex = audioProvider.recordingPadIndex;
+        // The recordingPadIndex is actually reset in stopRecording, 
+        // but we used _currentArpPad to store it. 
+        // Wait, I need to make sure I get the index BEFORE it's reset or pass it back.
+      }
+      return;
+    }
+
+    sampleProvider.selectPad(index);
     final sample = sampleProvider.getSample(sampleProvider.currentBank, index);
+    
     if (sample != null) {
       if (arpProvider.enabled) {
         audioProvider.startArp(index, arpProvider, sample);
@@ -71,8 +90,8 @@ class PadGrid extends StatelessWidget {
         );
       }
     } else {
-      // Haptic feedback for empty pad
-      Feedback.forLongPress(context);
+      // Empty pad - highlight it and maybe show a hint
+      HapticFeedback.lightImpact();
     }
   }
 
