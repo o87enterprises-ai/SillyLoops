@@ -25,9 +25,9 @@ COPY lib/ ./lib/
 COPY web/ ./web/
 COPY assets/ ./assets/
 
-# Build the web app with explicit error capture and renderer choice
+# Build the web app with explicit error capture
 RUN echo "Starting Flutter web build..." && \
-    flutter build web --release --base-href=/ --web-renderer html --verbose > build_log.txt 2>&1 || \
+    flutter build web --release --base-href=/ --verbose > build_log.txt 2>&1 || \
     (echo "BUILD FAILED! LOG FOLLOWS:" && cat build_log.txt && exit 1) && \
     echo "Build completed successfully!"
 
@@ -40,6 +40,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the build output
 COPY --from=build-env /app/build/web /usr/share/nginx/html
 
-EXPOSE 7860
+EXPOSE 8080
 
 CMD ["nginx", "-g", "daemon off;"]

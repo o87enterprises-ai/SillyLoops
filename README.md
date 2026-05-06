@@ -1,13 +1,3 @@
----
-title: SillyLoops
-emoji: 🎹
-colorFrom: purple
-colorTo: pink
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # SillyLoops - Traditional Sampler & Looper 🎹
 
 A Flutter-based sampler and looper designed for simplicity and immediate creative flow. Record any sound and turn it into a loop instantly.

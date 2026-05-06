@@ -16,6 +16,7 @@ local.properties
 /android/app/debug/
 /android/app/profile/
 /android/app/release/
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 
 # iOS
 .generated/
@@ -24,6 +25,12 @@ Pods/
 build/
 *.moved-aside
 *.xcuserstate
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/ephemeral/
+.flutter-plugins-dependencies
+ios/Runner/GeneratedPluginRegistrant.h
+ios/Runner/GeneratedPluginRegistrant.m
 
 # Environment/Secrets
 .env

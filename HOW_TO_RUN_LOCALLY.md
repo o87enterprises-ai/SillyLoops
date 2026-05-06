@@ -66,12 +66,6 @@ You can also run our provided setup script which handles everything:
 ./setup_and_launch.sh
 ```
 
-Or for just launching after initial setup:
-
-```bash
-./launch.sh
-```
-
 ## Troubleshooting
 
 If you encounter issues:
